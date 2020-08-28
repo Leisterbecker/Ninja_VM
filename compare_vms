@@ -1,0 +1,55 @@
+#!/bin/bash
+file1=test_njvm.txt;
+file2=test_njvmref.txt;
+
+declare -a arr=("--version"
+                "--help"
+                "--version --help"
+                "../test/prog1.bin"
+                ""
+                "--bla/path/to/file/abc.bin"
+                "--bla/path/to/file/abc.bin --bla/path/to/file/abc.bin"
+                "bla bla"
+                "   "
+                "jklö"
+                "jklöj --help"
+                "../test/factor.bin"
+                "--gcstats ../test/factor.bin"
+                "--gcstats --gcpurge ../test/factor.bin"
+                "--heap 1000 ../test/factor.bin"
+                "--stack 1000 ../test/factor.bin"
+                "--heap 1000 --stack 1000 ../test/factor.bin"
+                "--gcstats --gcpurge --heap 1000 --stack 1000 ../test/factor.bin"
+                "../test/test.bin"
+                )
+
+if test -f $file1
+then
+  rm $file1
+fi
+
+if test -f $file2
+then
+  rm $file2
+fi
+
+echo "Test njvm" > $file1
+echo "Test njvm_ref" > $file2
+
+for i in "${arr[@]}"
+do
+   echo "Parameter: "$i"  #########################################################" >> $file1
+   echo >> $file1
+
+   echo "Parameter: "$i"  #########################################################" >> $file2
+   echo >> $file2
+
+   ./njvm $i >> $file1
+   ./njvm_ref $i >> $file2
+
+   echo >> $file1
+   echo >> $file2
+done
+
+#Compare output files
+diff --context=2 $file1 $file2 > test_comparison.txt
